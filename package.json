@@ -1,0 +1,15 @@
+{
+  "name": "three-mcp",
+  "version": "1.0.0",
+  "description": "Three.js code editor exposed as an MCP server for multi-agent 3D collaboration",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "cors": "^2.8.5"
+  }
+}

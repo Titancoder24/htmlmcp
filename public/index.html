@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>three.mcp — AI-Powered Three.js Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Top Bar -->
+    <header id="topbar">
+      <div class="topbar-left">
+        <div class="logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="8" width="14" height="10" rx="2" stroke="#D97706" stroke-width="1.5" fill="none" opacity="0.5"/>
+            <rect x="5" y="5" width="14" height="10" rx="2" stroke="#4285F4" stroke-width="1.5" fill="none" opacity="0.7"/>
+            <rect x="7" y="2" width="14" height="10" rx="2" stroke="#10A37F" stroke-width="1.5" fill="none"/>
+          </svg>
+          <span class="logo-text">three<span class="logo-dot">.</span>mcp</span>
+        </div>
+        <div class="server-status">
+          <span class="status-dot pulse"></span>
+          <span class="status-text">MCP SERVER LIVE</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div id="connected-agents" class="connected-agents">
+          <span class="no-agents">No agents connected</span>
+        </div>
+        <button id="run-btn" class="run-btn" title="Run / Refresh Preview (Ctrl+S)">&#9654; Run</button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="workspace">
+      <!-- Left Column -->
+      <div id="left-col">
+        <!-- Editor Tab Bar -->
+        <div id="editor-tabs">
+          <div class="editor-tab active">
+            <span class="tab-icon">&#9670;</span>
+            scene.js
+          </div>
+        </div>
+
+        <!-- Code Editor -->
+        <div id="editor-container">
+          <div id="line-numbers"></div>
+          <textarea id="code-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+        </div>
+
+        <!-- Bottom Panel -->
+        <div id="bottom-panel">
+          <div id="panel-tabs">
+            <button class="panel-tab active" data-tab="connect">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              </svg>
+              Connect Your LLM
+            </button>
+            <button class="panel-tab" data-tab="tools">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+              </svg>
+              MCP Tools
+            </button>
+            <button class="panel-tab" data-tab="log">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              Activity Log
+            </button>
+          </div>
+
+          <div id="panel-content">
+            <!-- Connect Tab -->
+            <div class="tab-content active" id="tab-connect">
+              <div class="connect-intro">
+                <p>This app is an MCP server. Connect your LLM to control the 3D scene with AI.</p>
+              </div>
+
+              <div class="server-url-box">
+                <label>MCP Server URL</label>
+                <div class="url-copy-row">
+                  <code id="server-url"></code>
+                  <button id="copy-url-btn" class="copy-btn" onclick="copyServerUrl(this)">Copy</button>
+                </div>
+              </div>
+
+              <!-- ChatGPT -->
+              <div class="connector-card" data-agent="chatgpt">
+                <div class="connector-header" onclick="toggleConnector(this)">
+                  <div class="connector-left">
+                    <span class="connector-icon" style="color: var(--accent-chatgpt)">&#9679;</span>
+                    <span class="connector-name">ChatGPT</span>
+                    <span class="connector-plan">Pro, Team, Enterprise, Edu</span>
+                  </div>
+                  <span class="connector-chevron">&#9662;</span>
+                </div>
+                <div class="connector-body">
+                  <div class="connector-steps">
+                    <div class="step"><span class="step-num" style="border-color: var(--accent-chatgpt)">1</span><div><strong>Enable Developer Mode</strong><br>Go to Settings &rarr; Apps &amp; Connectors &rarr; Advanced &rarr; Toggle ON "Developer Mode"</div></div>
+                    <div class="step"><span class="step-num" style="border-color: var(--accent-chatgpt)">2</span><div><strong>Create a Connector</strong><br>Go to Settings &rarr; Connectors &rarr; click "Create"</div></div>
+                    <div class="step"><span class="step-num" style="border-color: var(--accent-chatgpt)">3</span><div><strong>Configure</strong><br>Name: <code>Three.js Editor</code> &mdash; URL: paste the MCP server URL above (must be HTTPS)</div></div>
+                    <div class="step"><span class="step-num" style="border-color: var(--accent-chatgpt)">4</span><div><strong>Use in Chat</strong><br>New chat &rarr; click + &rarr; More &rarr; Developer Mode &rarr; Add Sources &rarr; select "Three.js Editor"</div></div>
+                  </div>
+                  <div class="connector-note">Write tools require manual approval per call unless you choose "remember".</div>
+                  <a class="connector-docs" href="https://developers.openai.com/apps-sdk/deploy/connect-chatgpt" target="_blank" rel="noopener">View ChatGPT Docs &rarr;</a>
+                  <button class="simulate-btn" onclick="simulateAgent('chatgpt', 'ChatGPT', '#10A37F')">Simulate Connection</button>
+                </div>
+              </div>
+
+              <!-- Claude -->
+              <div class="connector-card" data-agent="claude">
+                <div class="connector-header" onclick="toggleConnector(this)">
+                  <div class="connector-left">
+                    <span class="connector-icon" style="color: var(--accent-claude)">&#9679;</span>
+                    <span class="connector-name">Claude</span>
+                    <span class="connector-plan">Free (limited), Pro, Team, Enterprise</span>
+                  </div>
+                  <span class="connector-chevron">&#9662;</span>
+                </div>
+                <div class="connector-body">
+                  <div class="connector-steps">
+                    <div class="step"><span class="step-num" style="border-color: var(--accent-claude)">1</span><div><strong>Web (claude.ai)</strong><br>Click + in chat &rarr; Connectors &rarr; Manage Connectors &rarr; Add custom server URL. Paste the MCP URL.</div></div>
+                    <div class="step"><span class="step-num" style="border-color: var(--accent-claude)">2</span><div><strong>Desktop App</strong><br>Settings &rarr; Developer &rarr; Edit Config. Add to <code>mcpServers</code>:</div></div>
+                  </div>
+                  <div class="config-block">
+                    <button class="copy-btn config-copy" onclick="copyConfig(this)">Copy</button>
+                    <pre><code>{
+  "mcpServers": {
+    "threejs-editor": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "<span class="config-url-placeholder">YOUR_MCP_URL</span>"]
+    }
+  }
+}</code></pre>
+                  </div>
+                  <div class="connector-steps">
+                    <div class="step"><span class="step-num" style="border-color: var(--accent-claude)">3</span><div><strong>Claude Code CLI</strong><br><code>claude mcp add --transport http threejs-editor YOUR_MCP_URL</code></div></div>
+                  </div>
+                  <a class="connector-docs" href="https://modelcontextprotocol.io/docs/develop/connect-local-servers" target="_blank" rel="noopener">View Claude MCP Docs &rarr;</a>
+                  <button class="simulate-btn" onclick="simulateAgent('claude', 'Claude', '#D97706')">Simulate Connection</button>
+                </div>
+              </div>
+
+              <!-- Gemini -->
+              <div class="connector-card" data-agent="gemini">
+                <div class="connector-header" onclick="toggleConnector(this)">
+                  <div class="connector-left">
+                    <span class="connector-icon" style="color: var(--accent-gemini)">&#9679;</span>
+                    <span class="connector-name">Gemini</span>
+                    <span class="connector-plan">CLI, Firebase Studio, Android Studio</span>
+                  </div>
+                  <span class="connector-chevron">&#9662;</span>
+                </div>
+                <div class="connector-body">
+                  <div class="connector-steps">
+                    <div class="step"><span class="step-num" style="border-color: var(--accent-gemini)">1</span><div><strong>Gemini CLI</strong><br><code>gemini mcp add --transport sse threejs-editor YOUR_MCP_URL</code><br>Verify with <code>/mcp status</code>. Do NOT use underscores in server names.</div></div>
+                    <div class="step"><span class="step-num" style="border-color: var(--accent-gemini)">2</span><div><strong>Firebase Studio</strong><br>Create <code>.idx/mcp.json</code>:</div></div>
+                  </div>
+                  <div class="config-block">
+                    <button class="copy-btn config-copy" onclick="copyConfig(this)">Copy</button>
+                    <pre><code>{
+  "mcpServers": {
+    "threejs-editor": {
+      "type": "sse",
+      "url": "<span class="config-url-placeholder">YOUR_MCP_URL</span>"
+    }
+  }
+}</code></pre>
+                  </div>
+                  <a class="connector-docs" href="https://geminicli.com/docs/tools/mcp-server/" target="_blank" rel="noopener">View Gemini Docs &rarr;</a>
+                  <button class="simulate-btn" onclick="simulateAgent('gemini', 'Gemini', '#4285F4')">Simulate Connection</button>
+                </div>
+              </div>
+
+              <!-- Perplexity -->
+              <div class="connector-card" data-agent="perplexity">
+                <div class="connector-header" onclick="toggleConnector(this)">
+                  <div class="connector-left">
+                    <span class="connector-icon" style="color: var(--accent-perplexity)">&#9679;</span>
+                    <span class="connector-name">Perplexity</span>
+                    <span class="connector-plan">Pro, Enterprise</span>
+                  </div>
+                  <span class="connector-chevron">&#9662;</span>
+                </div>
+                <div class="connector-body">
+                  <div class="connector-steps">
+                    <div class="step"><span class="step-num" style="border-color: var(--accent-perplexity)">1</span><div><strong>Web (Remote Connector)</strong><br>Account Settings &rarr; Connectors &rarr; "+ Custom Connector" &rarr; Remote. Name: <code>Three.js Editor</code>, URL: paste MCP URL, Transport: SSE, Auth: None. Check acknowledgement &rarr; Add.</div></div>
+                    <div class="step"><span class="step-num" style="border-color: var(--accent-perplexity)">2</span><div><strong>Enable in Thread</strong><br>Start a new thread &rarr; enable under Sources.</div></div>
+                    <div class="step"><span class="step-num" style="border-color: var(--accent-perplexity)">3</span><div><strong>Mac App</strong><br>Settings &rarr; Connectors &rarr; install PerplexityXPC helper &rarr; Add Connector &rarr; configure command</div></div>
+                  </div>
+                  <a class="connector-docs" href="https://www.perplexity.ai/help-center/en/articles/13915507-adding-custom-remote-connectors" target="_blank" rel="noopener">View Perplexity Docs &rarr;</a>
+                  <button class="simulate-btn" onclick="simulateAgent('perplexity', 'Perplexity', '#8B5CF6')">Simulate Connection</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tools Tab -->
+            <div class="tab-content" id="tab-tools">
+              <div class="tools-list">
+                <div class="tool-card">
+                  <div class="tool-header"><code class="tool-name">get_code</code><span class="tool-badge read">read</span></div>
+                  <p class="tool-desc">Read the current Three.js scene source code from the editor.</p>
+                  <div class="tool-params">Returns: <code>{ code, lineCount, lastModifiedBy }</code></div>
+                </div>
+                <div class="tool-card">
+                  <div class="tool-header"><code class="tool-name">update_code</code><span class="tool-badge write">write</span></div>
+                  <p class="tool-desc">Replace the entire Three.js scene code. Must define scene, camera, and animate function.</p>
+                  <div class="tool-params">Input: <code>{ code: string }</code></div>
+                </div>
+                <div class="tool-card">
+                  <div class="tool-header"><code class="tool-name">patch_code</code><span class="tool-badge write">write</span></div>
+                  <p class="tool-desc">Insert, replace, or delete specific lines. More surgical than update_code.</p>
+                  <div class="tool-params">Input: <code>{ startLine, endLine?, newCode }</code></div>
+                </div>
+                <div class="tool-card">
+                  <div class="tool-header"><code class="tool-name">get_scene_info</code><span class="tool-badge read">read</span></div>
+                  <p class="tool-desc">Analyze scene code and return structured summary of objects, lights, and materials.</p>
+                  <div class="tool-params">Returns: <code>{ objects, lights, materials, hasAnimation }</code></div>
+                </div>
+                <div class="tool-card">
+                  <div class="tool-header"><code class="tool-name">add_object</code><span class="tool-badge write">write</span></div>
+                  <p class="tool-desc">Add a new 3D object to the scene with geometry, material, and positioning.</p>
+                  <div class="tool-params">Input: <code>{ type, position?, material?, name? }</code></div>
+                </div>
+                <div class="tool-card">
+                  <div class="tool-header"><code class="tool-name">remove_object</code><span class="tool-badge write">write</span></div>
+                  <p class="tool-desc">Remove an object from the scene by variable name.</p>
+                  <div class="tool-params">Input: <code>{ name: string }</code></div>
+                </div>
+                <div class="tool-card">
+                  <div class="tool-header"><code class="tool-name">get_errors</code><span class="tool-badge read">read</span></div>
+                  <p class="tool-desc">Check if the current scene code has any runtime errors from the 3D preview.</p>
+                  <div class="tool-params">Returns: <code>{ hasErrors, errors }</code></div>
+                </div>
+                <div class="tool-card">
+                  <div class="tool-header"><code class="tool-name">screenshot</code><span class="tool-badge read">read</span></div>
+                  <p class="tool-desc">Capture a screenshot of the current 3D preview as a base64 PNG.</p>
+                  <div class="tool-params">Input: <code>{ width?, height? }</code></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Activity Log Tab -->
+            <div class="tab-content" id="tab-log">
+              <div id="activity-log" class="activity-log"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drag Handle -->
+      <div id="drag-handle"></div>
+
+      <!-- Right Column: Preview -->
+      <div id="right-col">
+        <div id="preview-header">
+          <span class="preview-title">3D Preview</span>
+          <span id="preview-status" class="preview-status">
+            <span class="status-dot" id="preview-dot"></span>
+            <span id="preview-status-text">Ready</span>
+          </span>
+        </div>
+        <iframe id="preview-iframe" sandbox="allow-scripts"></iframe>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
